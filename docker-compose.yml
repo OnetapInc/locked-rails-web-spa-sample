@@ -1,0 +1,42 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    container_name: nr_db
+    volumes:
+      - ${RAILS_DIR}/tmp/db:/var/lib/postgresql/data
+  web:
+    build:
+      context: ${RAILS_DIR}
+      dockerfile: Dockerfile.rails
+    container_name: nr_rails
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - ${RAILS_DIR}:/myapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+  nuxt:
+    build:
+      context: ${NUXT_DIR}/app
+      dockerfile: Dockerfile.nuxt
+    container_name: nr_nuxt
+    restart: always
+    ports:
+      - "4000:4000"
+    volumes:
+      - ${NUXT_DIR}/app:/src
+      - /src/node_modules
+    command:
+      "yarn run dev"
+
+  nginx:
+    image: nginx:1.13
+    container_name: nr_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ${NUXT_DIR}/nginx:/etc/nginx/conf.d
+    depends_on:
+      - nuxt
