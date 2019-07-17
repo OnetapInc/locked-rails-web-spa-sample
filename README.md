@@ -1,17 +1,38 @@
-# Lockedのを活用したSPAデモアプリ（Nuxt+Rails）
-これは[fishpercolator](https://github.com/fishpercolator)さんによって作成されたNuxt及びRailsの[サンプルアプリ](https://github.com/fishpercolator/autheg)にLockedを導入したものになります。実装例として参考にしてください。
+# Lockedを活用したSPAデモアプリ（Nuxt + Rails）
+一般的なNuxt.jsのSPAに対してAPIでRailsを活用しているWEBアプリの一例になります。
 
-# 動作確認方法
+### 動作確認
+```
+cd client
+npm i && yarn
+npm run dev
+# => localhost:4000
+```
 
-    docker-compose build
-    docker-compose run -u root backend bundle
-    docker-compose run frontend yarn
-    docker-compose run backend rails db:create
-    docker-compose run backend rails db:migrate
-    docker-compose up
+```
+cd server
+bundle install --path vendor/bundle
+```
 
-# ユーザー登録できないので、作成
+```
+mysql -u root -p
+mysql> CREATE USER 'satounextuser'@'localhost' IDENTIFIED BY 'satounextpass';
+mysql> GRANT ALL ON *.* TO 'satounextuser'@'localhost';
+```
 
-    docker exec -ti autheg_backend_1 bash
-    bundle exec rails c
-    User.create!(email: "test@example.com", password: "password")
+```
+bundle exec rake db:create
+bundle exec rake db:migrate
+bundle exec rails s -b 0.0.0.0
+# => localhost:3000
+```
+
+
+※登録時にメールがこなかったら
+```
+bundle exec rails c
+pry> SignUpRequest.last.token
+=> "aea7e684-679c-4c6e-8c05-906b76e0dbd6"
+
+# localhost:4000/signup/confirm/aea7e684-679c-4c6e-8c05-906b76e0dbd6
+```
