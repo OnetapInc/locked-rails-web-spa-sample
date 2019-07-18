@@ -29,33 +29,19 @@ gem 'puma', '~> 3.7'
 
 gem 'rb-readline'
 gem 'log4r'
-gem 'carrierwave', '~> 1.0'
-gem 'carrierwave-i18n'
-gem 'fog'
 gem "mime-types"
 gem 'rmagick'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'sendgrid-ruby'
-gem 'elasticsearch-model'
-gem 'elasticsearch-rails'
-gem 'koala'
-gem "instagram-continued", require: "instagram"
-gem 'twitter'
 gem 'sidekiq'
 gem 'redis','3.3.5'
 gem 'redis-namespace'
 gem 'redis-objects'
-gem 'activerecord-import'
-gem 'whenever', require: false
 gem 'rest-client'
-gem 'slack-api'
-gem 'one_signal'
 gem 'rubocop'
-gem 'rails-controller-testing'
-gem 'oauth'
 gem 'faraday'
 gem 'nokogiri'
-gem 'carrierwave-imageoptim', github: "dotneet/carrierwave-imageoptim"
+gem 'locked-rb'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

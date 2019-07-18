@@ -18,6 +18,10 @@ export const actions = {
     await context.dispatch('verify', data.access_token)
     return data
   },
+  async load (context, payload) {
+    const {data} = await api.get(`/auth/load?token=${payload.verifyToken}`)
+    return data.access_token.token
+  },
   async snsLogin (context, token) {
     const {data} = await api.post('/auth/sns-login', {token: token})
     return context.dispatch('verify', data.access_token)

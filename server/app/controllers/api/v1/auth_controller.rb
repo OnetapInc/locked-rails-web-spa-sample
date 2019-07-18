@@ -37,10 +37,43 @@ class Api::V1::AuthController < ApplicationController
     password = params[:password].strip
     result = User.login(email, password)
     if result.present?
-      MailLoginLog.success(email)
-      return render json: {access_token: result[:token]}
+
+      begin
+       result = locked.authenticate(
+         event: '$login.attempt',
+         user_id: "user#{user.id}",
+         user_ip: request.remote_ip,
+         user_agent: request.user_agent,
+         email: user.email,
+         callback_url: 'http://localhost:4000/load' # optional, but recommended
+       )
+      rescue Locked::Error => e
+       puts e.message
+      end
+
+      case result[:data][:action]
+      when 'allow'
+        MailLoginLog.success(email)
+        return render json: {access_token: result[:token]}
+      when 'verify'
+          return render json: {verify_token: result[:data][:verify_token]}
+      when 'deny'
+        return render json: {code: 'E01004'}, status: 400
+      end
+
     else
       MailLoginLog.failed(email)
+      return render json: {code: 'E01004'}, status: 400
+    end
+  end
+
+  def load
+    user = User.find_by(locked_token: params[:token])
+    if user
+      MailLoginLog.success(user.email)
+      access_token = AccessToken.create(user.id)
+      return render json: {access_token: access_token}, status: 200
+    else
       return render json: {code: 'E01004'}, status: 400
     end
   end

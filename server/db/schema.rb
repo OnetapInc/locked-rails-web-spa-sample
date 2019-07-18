@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2017_08_23_000000) do
+ActiveRecord::Schema.define(version: 2017_08_29_000000) do
 
   create_table "access_tokens", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.integer "user_id", null: false
@@ -116,6 +116,7 @@ ActiveRecord::Schema.define(version: 2017_08_23_000000) do
     t.integer "status", default: 1, comment: "1: 通常, 2: 正常退会"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "locked_token"
     t.index ["email"], name: "index_users_on_email"
     t.index ["invite_code"], name: "index_users_on_invite_code", unique: true
     t.index ["name"], name: "index_users_on_name"
