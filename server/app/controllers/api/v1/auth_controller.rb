@@ -36,8 +36,8 @@ class Api::V1::AuthController < ApplicationController
     email = params[:email].strip
     password = params[:password].strip
     result = User.login(email, password)
+    user = result[:user]
     if result.present?
-
       begin
        result = locked.authenticate(
          event: '$login.attempt',
@@ -56,6 +56,10 @@ class Api::V1::AuthController < ApplicationController
         MailLoginLog.success(email)
         return render json: {access_token: result[:token]}
       when 'verify'
+          user.update!(
+            locked_token: result[:data][:verify_token],
+            locked_token_expired_at: Time.zone.now + 1.hour
+          )
           return render json: {verify_token: result[:data][:verify_token]}
       when 'deny'
         return render json: {code: 'E01004'}, status: 400
@@ -68,7 +72,7 @@ class Api::V1::AuthController < ApplicationController
   end
 
   def load
-    user = User.find_by(locked_token: params[:token])
+    user = User.where('locked_token_expired_at > ?', Time.zone.now).find_by(locked_token: params[:token])
     if user
       MailLoginLog.success(user.email)
       access_token = AccessToken.create(user.id)
