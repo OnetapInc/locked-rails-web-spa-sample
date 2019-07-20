@@ -1,3 +1,5 @@
+require 'locked/support/rails'
+
 class Api::V1::AuthController < ApplicationController
   before_action :authenticated?, only: [:verify, :update, :update_profile_image]
   before_action :set_user, only: [:show, :update, :update_profile_image]
