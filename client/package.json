@@ -5,7 +5,7 @@
   "author": "devneko <dotneet@gmail.com>",
   "private": true,
   "scripts": {
-    "dev": "HOST=0.0.0.0 PORT=4000 nuxt",
+    "dev": "HOST=0.0.0.0 PORT=4343 nuxt",
     "build": "nuxt build",
     "analyze": "NODE_ENV=production nuxt build --analyze",
     "build-prod": "NODE_ENV=production nuxt build",

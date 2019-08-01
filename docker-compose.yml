@@ -1,0 +1,66 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/rails/Dockerfile
+    working_dir: /app
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b 0.0.0.0 -p 3443"
+    ports:
+      - '3443:3443'
+    volumes:
+      - ./server:/app
+      - bundle:/app/vendor/bundle
+      - ./server/.bashrc:/root/.bashrc
+      - ./server/.pryrc:/root/.pryrc
+    links:
+      - mysqld
+    depends_on:
+      - mysqld
+    tty: true
+    stdin_open: true
+    environment:
+      RAILS_DATABASE_USERNAME: root
+      RAILS_DATABASE_PASSWORD: root
+      RAILS_DATABASE_HOST: mysqld
+      RAILS_DATABASE_NAME: locked_dev
+      RAILS_DATABASE_PORT: 3366
+      BUNDLE_PATH: /app/vendor/bundle
+
+  nuxt_server:
+    stdin_open: true
+    tty: true
+    build: ./Dockerfiles/nuxt
+    command: bash /docker-entrypoint.sh
+    ports:
+      - "${HOST_PORT_NUXT}:4343"
+    volumes:
+      - ./client/:/app
+      - node_cache:/app/node_modules
+    environment:
+      HOST: app
+      NUXT_HOST: 0.0.0.0
+      LOCKED_API_HOST: http://app:3443/api/v1
+      LOCKED_API_HOST_INTERNAL: http://app:3443/api/v1
+
+  mysqld:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: 'locked_dev'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - "${HOST_PORT_MYSQL}:3366"
+    volumes:
+      - mysqld-volume:/var/lib/mysql
+
+volumes:
+  rails_public:
+    driver: local
+  bundle:
+    driver: local
+  rails_log:
+    driver: local
+  mysqld-volume:
+    driver: local
+  node_cache:
+    driver: local
